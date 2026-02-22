@@ -1,7 +1,9 @@
 import { ImapFlow } from "imapflow";
 import { simpleParser } from 'mailparser';
 import * as dotenv from 'dotenv';
-import {supabase} from './supabase.js'
+import { supabase } from './supabase.js';
+import { analyzeEmail } from './ai.js';
+import { sendAutoReply } from "./mailler.js";
 dotenv.config();
 
 const client = new ImapFlow({
@@ -15,54 +17,59 @@ const client = new ImapFlow({
     logger: false
 });
 
-export const fetchAndSaveEmails = async () => {
+export const fetchAndProcessEmails = async () => {
     await client.connect();
-
     const lock = await client.getMailboxLock('INBOX');
     
     try {
-        const messages = await client.search({ seen: false });
+        const messages = await client.search({ seen: false }); 
         
-        if (messages && messages.length > 0) {
-            console.log(`${messages.length} yeni məktub tapıldı. Emal olunur...`);
-
+        if (messages) {
             for (const msgId of messages) {
                 const message = await client.fetchOne(msgId, { source: true });
                 
-                if (message && message.source) {
-                    const parsed = await simpleParser(message.source);
+                if (message) { 
+                    const parsed = await simpleParser(message.source!);
                     
-                    console.log(`İşlənir: ${parsed.subject}`);
+                    const subject = parsed.subject ?? 'Movzusuz';
+                    const body = parsed.text ?? 'Metn yoxdur';
+                    const sender = parsed.from?.value?.[0]?.address ?? 'namelum@mail.com';
 
-            
-                    const { error } = await supabase
-                        .from('important_emails')
-                        .insert([
-                            { 
-                                sender_email: parsed.from?.value?.[0]?.address ?? 'namelum@mail.com', 
-                                subject: parsed.subject ?? 'Mövzusuz', 
-                                body_content: parsed.text ?? 'Mətn tapılmadı',
-                                summary: "AI analizi gözlənilir..." 
-                            }
-                        ]);
+                    console.log(`Analiz edilir: ${subject}`);
 
-                    if (error) {
-                        console.error("Supabase xətası:", error.message);
+                    const aiResult = await analyzeEmail(subject, body);
+                    console.log(`AI Qerari: ${aiResult.status}`);
+                    
+                    if (aiResult.status === "IMPORTANT") {
+                        const { error } = await supabase
+                            .from('important_emails')
+                            .insert([{ 
+                                sender_email: sender, 
+                                subject: subject, 
+                                body_content: body,
+                                summary: aiResult.summary 
+                            }]);
+
+                        if (!error) console.log("Vacib email bazaya yazildi.");
                     } else {
-                        console.log(`✅ Bazaya yazıldı: ${parsed.subject}`);
+                        console.log(`Avtomatik cavab: ${aiResult.reply_text}`);
+                        if(aiResult.reply_text) {
+                             await sendAutoReply(sender, aiResult.reply_text)
+                        }
                     }
+
+await client.messageFlagsAdd(msgId, ['\\Seen']);
+console.log("Gordum ve oxundu etdim", subject);
+
+
+
                 }
             }
-        } else {
-            console.log("Yeni məktub yoxdur. Qutu təmizdir.");
         }
-    } catch (error) {
-        console.error("Sistem xətası baş verdi:", error);
     } finally {
         lock.release();
     }
-
     await client.logout();
 };
 
-fetchAndSaveEmails().catch(err => console.error("Kritik xəta:", err));
+fetchAndProcessEmails().catch(err => console.error(err));
