@@ -1,29 +1,31 @@
-import nodemailler from 'nodemailer';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import nodemailer from 'nodemailer';
+import { ENV } from './config';
+import { logger } from './logger';
 
-const transport = nodemailler.createTransport({
-    host:"smtp.gmail.com",
-    port:587,
-    auth:{
-        user:process.env.EMAIL_USER,
-        pass:process.env.EMAIL_PASS
+const transport = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: ENV.EMAIL_USER,
+        pass: ENV.EMAIL_PASS
     },
-});
-
-export const  sendAutoReply = async(to:string, text:string) =>{
-    try{
-
-await transport.sendMail({
-    from:process.env.EMAIL_USER,
-    to:to,
-    subject:"Muracietiniz haqqinda",
-    text:text,
-
-});
-console.log("Email gonderildi:", to)
-
-   } catch(error){
-console.error("Email gonderilme xetasi", error)
+    tls: {
+        rejectUnauthorized: false
     }
-}
+});
+
+export const sendAutoReply = async (to: string, text: string) => {
+    try {
+        await transport.sendMail({
+            from: ENV.EMAIL_USER,
+            to: to,
+            subject: "Muraciet haqqında",
+            text: text,
+        });
+        logger.info({ to }, "Email gonderildi");
+    } catch (error: any) {
+        logger.error({ err: error.message, to }, "Email gonderilme xetasi");
+        throw error;
+    }
+};

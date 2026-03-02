@@ -1,4 +1,5 @@
 import {createClient} from '@supabase/supabase-js';
+import { Database } from './types/supabase.js';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,4 +12,4 @@ if(!supabaseKey  || !supabaseUrl) {
     throw new Error("Supabase url ve ya key .env-de tapilmadi.")
 };
 
-export const supabase = createClient(supabaseUrl,supabaseKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
