@@ -1,30 +1,41 @@
-/*import { analyzeEmail } from "./ai.js"; // Sənin yazdığın funksiya
+import { analyzeEmail } from "./ai"; // Fayl yolunu özünə görə dəqiqləşdir
 
 async function testAgent() {
-    console.log("🚀 AI Analizi başlayır...");
+    console.log("🚀 AI Analizi və API yoxlanışı başlayır...");
 
-    const fakeSubject = "Sizinlə əməkdaşlıq etmək istəyirik";
-    const fakeBody = "Salam Turan bəy, sizin AI proyektiniz marağımıza səbəb oldu. Görüşə bilərikmi?";
+    const fakeSubject = "Yeni CRM paneli təklifi";
+    const fakeBody = "Salam Turan bəy, sizinlə əməkdaşlıq etmək və yeni sistemimizi təqdim etmək istəyirik.";
+    const fakeSender = "test@example.com";
 
     try {
-        const result = await analyzeEmail(fakeSubject, fakeBody);
-        console.log("-----------------------");
-        console.log("🤖 AI-dan gələn cavab:");
-        console.log(result);
-        console.log("-----------------------");
+        // Funksiyanı çağırırıq
+        const result = await analyzeEmail(fakeSubject, fakeBody, fakeSender);
         
-        // Gələn cavabın JSON olub-olmadığını yoxlayaq
-        try {
-            const parsed = JSON.parse(result.replace(/```json|```/g, "").trim());
-            console.log("✅ Təbrik edirik! JSON uğurla oxundu.");
-            console.log("Status:", parsed.status);
-        } catch (e) {
-            console.log("⚠️ Cavab gəldi, amma təmiz JSON deyil. Təmizləmə lazımdır.");
+        console.log("-----------------------");
+        console.log("🤖 AI-dan gələn cavab obyekti:");
+        console.dir(result, { depth: null }); // Obyekti tam detallı göstərir
+        console.log("-----------------------");
+
+        // Artıq result obyekt olduğu üçün birbaşa yoxlaya bilərik
+        if (result && result.status) {
+            console.log("✅ API İŞLƏYİR! Cavab uğurla alındı.");
+            console.log(`Status: [${result.status}]`);
+            console.log(`Summary: ${result.summary}`);
+            
+            if (result.status === "REPLY") {
+                console.log("📝 Hazırlanan cavab:", result.reply_text);
+            }
+        } else {
+            console.log("⚠️ Cavab gəldi, amma gözlənilən formatda deyil.");
         }
 
-    } catch (error) {
-        console.error("❌ XƏTA:", error);
+    } catch (error: any) {
+        if (error.message.includes("429") || error.message.includes("limit")) {
+            console.error("❌ API LİMİTİ BİTİB: ", error.message);
+        } else {
+            console.error("❌ TEXNİKİ XƏTA:", error.message);
+        }
     }
 }
 
-testAgent(); */
+testAgent();

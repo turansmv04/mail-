@@ -2,7 +2,7 @@ import { ImapFlow } from "imapflow";
 import { simpleParser } from 'mailparser';
 import { supabase } from './supabase';
 import { analyzeEmail } from './ai';
-import { sendAutoReply } from "./mailler";
+import { sendAutoReply } from "./mailer";
 import pLimit from "p-limit";
 import { ENV } from "./config";
 import { logger } from "./logger";
