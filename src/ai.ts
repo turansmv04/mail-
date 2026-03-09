@@ -5,6 +5,7 @@ import { ENV } from './config';
 import { logger } from './logger';
 
 const sdk   = new Bytez(ENV.API_KEY);
+const model = sdk.model('openai/gpt-4o');
 
 const PROMPT_TEMPLATE = readFileSync(
     join(__dirname, 'prompts', 'prompt.txt'),
