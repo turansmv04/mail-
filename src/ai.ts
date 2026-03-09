@@ -5,9 +5,7 @@ import { ENV } from './config';
 import { logger } from './logger';
 
 const sdk   = new Bytez(ENV.API_KEY);
-const model = sdk.model('openai/gpt-4o');
 
-// Prompt bir dəfə yüklənir, hər çağırışda disk oxunmur
 const PROMPT_TEMPLATE = readFileSync(
     join(__dirname, 'prompts', 'prompt.txt'),
     'utf-8'
