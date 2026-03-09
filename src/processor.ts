@@ -7,7 +7,7 @@ import pLimit from 'p-limit';
 import { ENV } from './config';
 import { logger } from './logger';
 
-let isProcessing = false;
+let isProcessing = false;  
 
 const processSingleEmail = async (
     client: ImapFlow,
@@ -81,7 +81,7 @@ const processEmails = async (client: ImapFlow): Promise<void> => {
         lock = await client.getMailboxLock('INBOX');
         const messages = await client.search({ seen: false });
 
-        if (!messages ||!messages.length) {
+        if (!messages || !messages.length) {
             logger.info('Yeni mail yoxdur');
             return;
         }

@@ -8,7 +8,7 @@ const sdk   = new Bytez(ENV.API_KEY);
 const model = sdk.model('openai/gpt-4o');
 
 const PROMPT_TEMPLATE = readFileSync(
-    join(__dirname, 'prompts', 'prompt.txt'),
+    join( __dirname, 'prompts', 'prompt.txt'),
     'utf-8'
 );
 
@@ -39,6 +39,7 @@ export async function analyzeEmail(
         const aiText: string =
             result?.output?.content ??
             (typeof result?.output === 'string' ? result.output : null);
+            console.log("xam cavab", aiText)
 
         if (!aiText) throw new Error('AI-dan məzmun oxuna bilmədi');
 

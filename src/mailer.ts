@@ -3,15 +3,15 @@ import { ENV } from './config';
 import { logger } from './logger';
 
 const transport = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
+    host: ENV.SMTP_HOST,
+    port: ENV.SMTP_PORT,
     secure: true,
     auth: {
         user: ENV.EMAIL_USER,
         pass: ENV.EMAIL_PASS
     },
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized:false
     }
 });
 
