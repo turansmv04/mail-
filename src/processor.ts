@@ -80,6 +80,8 @@ const processEmails = async (client: ImapFlow): Promise<void> => {
     try {
         lock = await client.getMailboxLock('INBOX');
         const messages = await client.search({ seen: false });
+        lock.release();
+        lock = undefined;
 
         if (!messages || !messages.length) {
             logger.info('Yeni mail yoxdur');
@@ -137,8 +139,12 @@ export const startIdleListener = async (): Promise<void> => {
         await processEmails(client);
     });
 
-    client.on('error', (err: Error) => {
+    client.on('error', async  (err: Error) => {
         logger.error({ err: err.message }, 'IMAP xətası — 5 saniyə sonra yenidən qoşulur');
+            try{
+                await client.logout();
+            }
+            catch(e) {}
         setTimeout(() => startIdleListener(), 5_000);
     });
 };

@@ -15,9 +15,9 @@ const PROMPT_TEMPLATE = readFileSync(
 
 const buildPrompt = (subject: string, body: string, sender: string): string =>
     PROMPT_TEMPLATE
-        .replace('{{SENDER}}',  sender)
-        .replace('{{SUBJECT}}', subject)
-        .replace('{{BODY}}',    body.slice(0, 2000));
+        .replaceAll('{{SENDER}}',  sender)
+        .replaceAll('{{SUBJECT}}', subject)
+        .replaceAll('{{BODY}}',    body);
 
 export interface EmailAnalysisResult {
     status:     'IMPORTANT' | 'REPLY' | 'IGNORE';
