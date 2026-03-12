@@ -1,12 +1,12 @@
-/*import { analyzeEmail } from "./ai"; 
+import { analyzeEmail } from "./ai"; 
 
 async function testAgent() {
     console.log("🔍 DETEKTİV REJİMİ: PROBLEMİ ARAŞDIRIRIQ...");
     
 
-    const fakeSubject = "Görüş vaxtı haqqında";
-const fakeBody = "Salam, sabah saat 10:00-da ofisdə görüşə bilərikmi? Layihənin detallarını danışmaq lazımdır.";
-    const fakeSender = "test@example.com";
+    const fakeSubject = "Biznesinizi böyüdək";
+    const fakeBody = 'Salam, biz rəqəmsal marketinq agentliyiyik. SEO, SMM xidmətlərimiz ilə satışlarınızı artıra bilərik. Pulsuz konsultasiya üçün cavab yazın!';
+    const fakeSender = 'sales@digitalagency.com';
 
     try {
         console.log(" AI-a sorğu göndərildi, cavab gözlənilir...");
@@ -19,7 +19,7 @@ const fakeBody = "Salam, sabah saat 10:00-da ofisdə görüşə bilərikmi? Layi
 
     
         if (result.summary.includes("[AI XƏTAlASI]")) {
-            console.log("\n❌ PROBLEM TAPILDI!");
+            console.log("\nPROBLEM TAPILDI!");
             
             const errorMessage = result.summary;
             
@@ -36,7 +36,7 @@ const fakeBody = "Salam, sabah saat 10:00-da ofisdə görüşə bilərikmi? Layi
 
         } 
         else {
-            console.log("\n✅ PROBLEM YOXDUR! Sistem düzgün işləyir.");
+            console.log("\n PROBLEM YOXDUR! Sistem düzgün işləyir.");
         }
 
     } catch (error: any) {
@@ -44,4 +44,4 @@ const fakeBody = "Salam, sabah saat 10:00-da ofisdə görüşə bilərikmi? Layi
     }
 }
 
-testAgent(); */
+testAgent(); 

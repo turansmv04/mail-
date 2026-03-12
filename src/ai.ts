@@ -1,14 +1,15 @@
-import Bytez from 'bytez.js';
+import { OpenRouter } from '@openrouter/sdk';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ENV } from './config';
 import { logger } from './logger';
 
-const sdk   = new Bytez(ENV.API_KEY);
-const model = sdk.model('openai/gpt-4o');
+const openrouter = new OpenRouter({
+    apiKey: ENV.OPENROUTER_API_KEY
+});
 
 const PROMPT_TEMPLATE = readFileSync(
-    join( __dirname, 'prompts', 'prompt.txt'),
+    join(__dirname, 'prompts', 'prompt.txt'),
     'utf-8'
 );
 
@@ -32,14 +33,14 @@ export async function analyzeEmail(
     const prompt = buildPrompt(subject, body, sender);
 
     try {
-        const result = await model.run([{ role: 'user', content: prompt }]);
-
-        logger.info('Bytez GPT-4o cavabı gəldi');
-
-        const aiText: string =
-            result?.output?.content ??
-            (typeof result?.output === 'string' ? result.output : null);
-            console.log("xam cavab", aiText)
+        const response = await openrouter.chat.send({
+            chatGenerationParams: {
+                model: 'nvidia/nemotron-3-super-120b-a12b:free',
+                messages: [{ role: 'user', content: prompt }]
+            }
+        });
+ 
+        const aiText = response.choices?.[0]?.message?.content;
 
         if (!aiText) throw new Error('AI-dan məzmun oxuna bilmədi');
 

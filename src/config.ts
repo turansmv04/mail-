@@ -15,7 +15,7 @@ const envSchema = z.object({
     SMTP_PORT: z.coerce.number(),
     SUPABASE_URL: z.url(),
     SUPABASE_ANON_KEY: z.string().min(1),
-    API_KEY: z.string().min(1)
+    OPENROUTER_API_KEY: z.string().min(1)
 });
 
 

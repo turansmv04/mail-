@@ -23,6 +23,7 @@
   "dependencies": {
     "@google/genai": "^1.42.0",
     "@google/generative-ai": "^0.24.1",
+    "@openrouter/sdk": "^0.9.11",
     "@supabase/supabase-js": "^2.97.0",
     "@types/pino": "^7.0.4",
     "bytez.js": "^3.0.0",
