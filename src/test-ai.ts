@@ -16,7 +16,6 @@ async function testAgent() {
         console.log("🤖 AI-dan gələn son nəticə:");
         console.dir(result, { depth: null, colors: true });
         console.log("-------------------------------------------");
-
     
         if (result.summary.includes("[AI XƏTAlASI]")) {
             console.log("\nPROBLEM TAPILDI!");

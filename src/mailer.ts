@@ -20,12 +20,12 @@ export const sendAutoReply = async (to: string, text: string) => {
         await transport.sendMail({
             from: ENV.EMAIL_USER,
             to: to,
-            subject: "Muraciet haqqında",
+            subject: "About the application",
             text: text,
         });
-        logger.info({ to }, "Email gonderildi");
+        logger.info({ to }, "Email sent");
     } catch (error: any) {
-        logger.error({ err: error.message, to }, "Email gonderilme xetasi");
+        logger.error({ err: error.message, to }, "Email sending error");
         throw error;
     }
 };

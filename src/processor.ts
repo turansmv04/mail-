@@ -18,19 +18,19 @@ const processSingleEmail = async (
 
     const parsed = await simpleParser(message.source);
 
-    const subject  = parsed.subject ?? 'Mövzusuz';
-    const sender   = parsed.from?.value?.[0]?.address ?? 'namelum@mail.com';
+    const subject  = parsed.subject ?? 'No subject';
+    const sender   = parsed.from?.value?.[0]?.address ?? 'unknown@mail.com';
     const attachmentInfo = parsed.attachments?.length
-        ? `\n\nƏlavə fayllar: ${parsed.attachments
+        ? `\n\nAttachments: ${parsed.attachments
               .map(a => `${a.filename} (${a.contentType})`)
               .join(', ')}`
         : '';
-    const body = (parsed.text ?? 'Mətn yoxdur').slice(0, 3000) + attachmentInfo;
+    const body = (parsed.text ?? 'No text').slice(0, 3000) + attachmentInfo;
 
-    logger.info({ msgId, sender, subject }, 'Email analiz edilir');
+    logger.info({ msgId, sender, subject }, 'Email is being analyzed');
 
     const aiResult = await analyzeEmail(subject, body, sender);
-    logger.info({ msgId, status: aiResult.status }, 'AI qərari');
+    logger.info({ msgId, status: aiResult.status }, 'AI decision');
 
     if (aiResult.status === 'IMPORTANT') {
         const messageId =
@@ -49,27 +49,27 @@ const processSingleEmail = async (
                 { onConflict: 'message_id' }
             );
 
-        if (error) throw new Error(`Supabase xətası: ${error.message}`);
-        logger.info({ msgId, sender }, 'Vacib email bazaya yazıldı');
+        if (error) throw new Error(`Supabase error: ${error.message}`);
+        logger.info({ msgId, sender }, 'Important email saved to database');
 
     } else if (aiResult.status === 'REPLY' && aiResult.reply_text) {
-        logger.info({ msgId, sender }, 'Avtomatik cavab göndərilir');
+        logger.info({ msgId, sender }, 'Sending automatic reply');
         await sendAutoReply(sender, aiResult.reply_text);
-        logger.info({ msgId, sender }, 'Cavab uğurla göndərildi');
+        logger.info({ msgId, sender }, 'Reply sent successfully');
 
     } else {
-        logger.info({ msgId, sender, subject }, 'Email ignore edildi');
+        logger.info({ msgId, sender, subject }, 'Email ignored');
     }
 
     await client.messageFlagsAdd(msgId, ['\\Seen']);
-    logger.info({ msgId, subject }, 'Oxundu olaraq işarələndi');
+    logger.info({ msgId, subject }, 'Marked as read');
 
     return aiResult.status;
 };
 
 const processEmails = async (client: ImapFlow): Promise<void> => {
     if (isProcessing) {
-        logger.info('Artıq işlənilir, keçilir...');
+        logger.info('Already processing, skipping...');
         return;
     }
     isProcessing = true;
@@ -84,11 +84,11 @@ const processEmails = async (client: ImapFlow): Promise<void> => {
         lock = undefined;
 
         if (!messages || !messages.length) {
-            logger.info('Yeni mail yoxdur');
+            logger.info('No new emails');
             return;
         }
 
-        logger.info({ count: messages.length }, 'Oxunmamış mailler emal olunur');
+        logger.info({ count: messages.length }, 'Processing unread emails');
 
         const limit = pLimit(3);
 
@@ -102,16 +102,16 @@ const processEmails = async (client: ImapFlow): Promise<void> => {
                     else                              stats.ignore++;
                 } catch (err: any) {
                     stats.error++;
-                    logger.error({ msgId, err: err.message }, 'Email xəta verdi, keçilir');
+                    logger.error({ msgId, err: err.message }, 'Email caused an error, skipping');
                 }
             })
         );
 
         await Promise.allSettled(tasks);
-        logger.info({ stats }, 'Email emal statistikası');
+        logger.info({ stats }, 'Email processing statistics');
 
     } catch (err: any) {
-        logger.error({ err: err.message }, 'processEmails xətası');
+        logger.error({ err: err.message }, 'processEmails error');
     } finally {
         lock?.release();
         isProcessing = false;
@@ -130,17 +130,17 @@ export const startIdleListener = async (): Promise<void> => {
 
     await client.connect();
     await client.mailboxOpen('INBOX');
-    logger.info('Yeni email gözlənilir...');
+    logger.info('Waiting for new emails...');
 
     await processEmails(client);
 
     client.on('exists', async () => {
-        logger.info('Yeni mailler işlənilir...');
+        logger.info('Processing new emails...');
         await processEmails(client);
     });
 
     client.on('error', async  (err: Error) => {
-        logger.error({ err: err.message }, 'IMAP xətası — 5 saniyə sonra yenidən qoşulur');
+        logger.error({ err: err.message }, 'IMAP error — reconnecting in 5 seconds');
             try{
                 await client.logout();
             }
