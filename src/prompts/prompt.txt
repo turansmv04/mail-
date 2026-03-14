@@ -125,10 +125,10 @@ Choose IGNORE in the following cases:
 ╚══════════════════════════════════════════╝
 
 <email_content>
-Sender: ${{SENDER}}
-Subject: ${{SUBJECT}}
+Sender: {{SENDER}}
+Subject: {{SUBJECT}}
 Text:
-${{BODY.slice(0, 2000)}}
+{{BODY}}
 </email_content>
 
 ╔══════════════════════════════════════════╗
